@@ -3,7 +3,7 @@
   @author Takuma Kawamura <bitpositive@MacBook-Pro-13.local>
   @date   Wed Jul 10 09:21:26 2019
   
-  @brief  FAIRCUT Cutter Main (   Hotel)
+  @brief  FAIRCUT Cutter Main ( India )
 
   
   @copyright 2019 (C) BitPositive
@@ -20,7 +20,7 @@
 // Definitions ////////////////////////////////////////////////////////////////
 #define nop() __NOP()
 enum motorIdentity_t { SM_VERTICAL_1 = 1, SM_VERTICAL_2, SM_ROTATE };
-enum serverCommands_t { COM_SEND = 1, COM_ACK, COM_ROTATE, COM_UPDOWN };
+enum serverCommands_t { COM_SEND = 1, COM_ACK, COM_ROTATE, COM_UPDOWN, COM_NOTLOADED, COM_LOADED, COM_RECEIVED, COM_STARTEDPREDICTING };
 enum autoCuttingStates_t { STATE_IDLE, STATE_ROTATE, STATE_DOWN, STATE_UP, STATE_ENDING };
 
 // Global variables ///////////////////////////////////////////////////////////
@@ -117,23 +117,43 @@ int main(){
       command = jetsonPort.get_payload_by_1byte( 0 );
       for( int8_t i = 0; i < 10; i++ ){
         data[i] = jetsonPort.get_payload_by_1byte( i + 1 );
-        if( data[i] == 0 ){
-          break;
-        }else{
-          stepAmountQueue.put( ( uint8_t )( data[i] * 2 ) );
-        }
       }
       
       switch( command ){
       case COM_SEND:
         debugSerial.printf( "Recv: COM_SEND\n" );
         debugSerial.printf( "Data: %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9] );
+
+        for( int8_t i = 0; i < 10; i++ ){
+          if( data[i] == 0 ){
+            break;
+          }else{
+            stepAmountQueue.put( ( uint8_t )( data[i] * 2 ) );
+          }
+        }
+        
         display.cls();
-        display.printf( "FAIRCUT:   Hotel\nRecv: COM_SEND" );
+        display.printf( "Firmware:  IndiaRecv:   COM_SEND\n" );
         
         if( !IsDuringAutoCuttingProcess && !stepperMotors.isBusy( SM_VERTICAL_1 ) && !stepperMotors.isBusy( SM_VERTICAL_2 ) && !stepperMotors.isBusy( SM_ROTATE ) ){
           IsDuringAutoCuttingProcess = true;
         }
+        break;
+      case COM_NOTLOADED:
+        display.cls();
+        display.printf("Firmware:  IndiaNow Loading...  \n");
+        break;
+      case COM_LOADED:
+        display.cls();
+        display.printf("Firmware:  IndiaStart Capturing!\n");
+        break;
+      case COM_RECEIVED:
+        display.cls();
+        display.printf("Firmware:  IndiaReceived:%2d / %-2d\n", data[0], data[1]);
+        break;
+      case COM_STARTEDPREDICTING:
+        display.cls();
+        display.printf("Firmware:  IndiaNow Predicting..\n");
         break;
       default:
         break;
@@ -174,10 +194,10 @@ void InitializeTicker( void )
 void InitializeDisplay( void )
 {
   display.cls();
-  display.printf( "   NITMakers\n    presents" );
+  display.printf( "   NITMakers\n    Presents\n" );
   wait(1.0);
   display.cls();
-  display.printf( "FAIRCUT:   Hotel\n" );
+  display.printf( "Firmware:  IndiaNot Initialized " );
   
   return;
 }
@@ -463,17 +483,17 @@ void ISR_AutoCutting( void )
       currentAutoCuttingState = STATE_ROTATE;
 
       display.cls();
-      display.printf( "FAIRCUT:    Hotel\nState: Rotation" );
+      display.printf( "Firmware:  IndiaState:    Idling\n" );
       
       break;
     }
     case STATE_ROTATE: {
-      uint32_t steps = stepAmountQueue.get() * 128;
-      stepperMotors.move( SM_ROTATE, steps, true );
+      uint32_t steps = stepAmountQueue.get();
+      stepperMotors.move( SM_ROTATE, steps * 128, true );
       currentAutoCuttingState = STATE_DOWN;
       
       display.cls();
-      display.printf( "FAIRCUT:    Hotel\nState: Cutting" );
+      display.printf( "Firmware:  IndiaState:  Rotating\n" );
       
       break;
     }
@@ -485,7 +505,7 @@ void ISR_AutoCutting( void )
       currentAutoCuttingState = STATE_UP;
 
       display.cls();
-      display.printf( "FAIRCUT:    Hotel\nState: Raising" );
+      display.printf( "Firmware:  IndiaState:   Cutting\n" );
       
       break;
     }
@@ -500,13 +520,13 @@ void ISR_AutoCutting( void )
         currentAutoCuttingState = STATE_ENDING;
 
         display.cls();
-        display.printf( "FAIRCUT:    Hotel\nState: Ending" );
+        display.printf( "Firmware:  IndiaState:    Ending\n" );
       }else{
         // there is more actions to do
         currentAutoCuttingState = STATE_ROTATE;
         
         display.cls();
-        display.printf( "FAIRCUT:    Hotel\nState: Rotation" );      
+        display.printf( "Firmware:  IndiaState:   Raising\n" );
       }
       
       break;
@@ -519,8 +539,8 @@ void ISR_AutoCutting( void )
       IsDuringAutoCuttingProcess = false;
       
       display.cls();
-      display.printf( "FAIRCUT:    Hotel\nState: Completed" );
-      
+      display.printf( "State: CompletedStart Capturing!\n");
+
       break;
     }
     default:
@@ -534,46 +554,46 @@ void ISR_AutoCutting( void )
 void CheckButtons( void )
 {
   
-  if( IsUpButtonPressed ){
-    debugSerial.printf("UpButton\n");
-  }
-  if( IsDownButtonPressed ){
-    debugSerial.printf("DownButton\n");
-  }
-  if( IsRotateRightButtonPressed ){
-    debugSerial.printf("RotateRightButton\n");
-  }
-  if( IsRotateLeftButtonPressed ){
-    debugSerial.printf("RotateLeftButton\n");
-  }
-  if( IsRotateExecButtonPressed ){
-    debugSerial.printf("RotateExecButton\n");
-  }
-  if( IsEnableCtrlButtonPressed ){
-    debugSerial.printf("EnableCtrlButton\n");
-  }
-  if( IsInitialMoveButtonPressed ){
-    debugSerial.printf("InitialMoveButton\n");
-  }
-  if( IsAutoNotManButtonPressed ){
-    debugSerial.printf("AutoNotManButton\n");
-  }
-  if( IsCSpeedHighButtonPressed ){
-    debugSerial.printf("CSHighButton\n");
-  }
-  if( IsCSpeedLowButtonPressed ){
-    debugSerial.printf("CSLowButton\n");
-  }
-  if( IsCutterResetButtonPressed ){
-    debugSerial.printf("CResetButton\n");
-  }
-  if( IsRSpeedHighButtonPressed ){
-    debugSerial.printf("RSHighButton\n");
-  }
-  if( IsRSpeedMidButtonPressed ){
-    debugSerial.printf("RSMidButton\n");
-  }
-  if( IsRSpeedLowButtonPressed ){
-    debugSerial.printf("RSLowButton\n");
-  }
+  // if( IsUpButtonPressed ){
+  //   debugSerial.printf("UpButton\n");
+  // }
+  // if( IsDownButtonPressed ){
+  //   debugSerial.printf("DownButton\n");
+  // }
+  // if( IsRotateRightButtonPressed ){
+  //   debugSerial.printf("RotateRightButton\n");
+  // }
+  // if( IsRotateLeftButtonPressed ){
+  //   debugSerial.printf("RotateLeftButton\n");
+  // }
+  // if( IsRotateExecButtonPressed ){
+  //   debugSerial.printf("RotateExecButton\n");
+  // }
+  // if( IsEnableCtrlButtonPressed ){
+  //   debugSerial.printf("EnableCtrlButton\n");
+  // }
+  // if( IsInitialMoveButtonPressed ){
+  //   debugSerial.printf("InitialMoveButton\n");
+  // }
+  // if( IsAutoNotManButtonPressed ){
+  //   debugSerial.printf("AutoNotManButton\n");
+  // }
+  // if( IsCSpeedHighButtonPressed ){
+  //   debugSerial.printf("CSHighButton\n");
+  // }
+  // if( IsCSpeedLowButtonPressed ){
+  //   debugSerial.printf("CSLowButton\n");
+  // }
+  // if( IsCutterResetButtonPressed ){
+  //   debugSerial.printf("CResetButton\n");
+  // }
+  // if( IsRSpeedHighButtonPressed ){
+  //   debugSerial.printf("RSHighButton\n");
+  // }
+  // if( IsRSpeedMidButtonPressed ){
+  //   debugSerial.printf("RSMidButton\n");
+  // }
+  // if( IsRSpeedLowButtonPressed ){
+  //   debugSerial.printf("RSLowButton\n");
+  // }
 }
