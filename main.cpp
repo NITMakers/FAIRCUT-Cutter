@@ -133,7 +133,7 @@ int main(){
         }
         
         display.cls();
-        display.printf( "Firmware:  IndiaRecv:   COM_SEND\n" );
+        display.printf( "Firmware:  India\n\n" );
         
         if( !IsDuringAutoCuttingProcess && !stepperMotors.isBusy( SM_VERTICAL_1 ) && !stepperMotors.isBusy( SM_VERTICAL_2 ) && !stepperMotors.isBusy( SM_ROTATE ) ){
           IsDuringAutoCuttingProcess = true;
@@ -141,11 +141,11 @@ int main(){
         break;
       case COM_NOTLOADED:
         display.cls();
-        display.printf("Firmware:  IndiaNow Loading...  \n");
+        display.printf("Firmware:  IndiaLoading VGGNet16\n");
         break;
       case COM_LOADED:
         display.cls();
-        display.printf("Firmware:  IndiaStart Capturing!\n");
+        display.printf("Firmware:  IndiaReady           \n");
         break;
       case COM_RECEIVED:
         display.cls();
@@ -153,7 +153,7 @@ int main(){
         break;
       case COM_STARTEDPREDICTING:
         display.cls();
-        display.printf("Firmware:  IndiaNow Predicting..\n");
+        display.printf("Firmware:  IndiaPredicting...   \n");
         break;
       default:
         break;
@@ -197,7 +197,7 @@ void InitializeDisplay( void )
   display.printf( "   NITMakers\n    Presents\n" );
   wait(1.0);
   display.cls();
-  display.printf( "Firmware:  IndiaNot Initialized " );
+  display.printf( "Firmware:  IndiaUninitialized   " );
   
   return;
 }
@@ -539,8 +539,8 @@ void ISR_AutoCutting( void )
       IsDuringAutoCuttingProcess = false;
       
       display.cls();
-      display.printf( "State: CompletedStart Capturing!\n");
-
+      display.printf( "State: CompletedReady           \n");
+      
       break;
     }
     default:
