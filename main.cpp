@@ -246,17 +246,17 @@ bool ManualControlStepper( void )
     if( IsUpButtonPressed ){       // Up
       if( !stepperMotors.isBusy( SM_VERTICAL_1 ) && !stepperMotors.isBusy( SM_VERTICAL_2 ) ){
         // Add a action to queue: Rotate Vertical1 2 times/Counter-Clockwise
-        stepperMotors.move( SM_VERTICAL_1, 200*128*4, true );
+        stepperMotors.move( SM_VERTICAL_1, 200*128*6, true );
         // Add a action to queue: Rotate Vertical2 2 times/Counter-Clockwise
-        stepperMotors.move( SM_VERTICAL_2, 200*128*4, true );
+        stepperMotors.move( SM_VERTICAL_2, 200*128*6, true );
         isActed = true;
       }
     }else if( IsDownButtonPressed ){ // Down
       if( !stepperMotors.isBusy( SM_VERTICAL_1 ) && !stepperMotors.isBusy( SM_VERTICAL_2 ) ){
         // Add a action to queue: Rotate Vertical1 2 times/Clockwise
-        stepperMotors.move( SM_VERTICAL_1, 200*128*4, false );
+        stepperMotors.move( SM_VERTICAL_1, 200*128*6, false );
         // Add a action to queue: Rotate Vertical2 2 times/Clockwise
-        stepperMotors.move( SM_VERTICAL_2, 200*128*4, false );
+        stepperMotors.move( SM_VERTICAL_2, 200*128*6, false );
       }
       isActed = true;
     }
@@ -498,7 +498,7 @@ void ISR_AutoCutting( void )
       break;
     }
     case STATE_DOWN: {
-      uint8_t rotation = 4;
+      uint8_t rotation = 6;
       uint32_t steps = ( uint32_t )( rotation * 200 * 128 );
       stepperMotors.move( SM_VERTICAL_1, steps, false );
       stepperMotors.move( SM_VERTICAL_2, steps, false );
@@ -510,7 +510,7 @@ void ISR_AutoCutting( void )
       break;
     }
     case STATE_UP: {
-      uint8_t rotation = 4;
+      uint8_t rotation = 6;
       uint32_t steps = ( uint32_t )( rotation * 200 * 128 );
       stepperMotors.move( SM_VERTICAL_1, steps, true );
       stepperMotors.move( SM_VERTICAL_2, steps, true );
