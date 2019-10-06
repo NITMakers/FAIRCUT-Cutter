@@ -207,11 +207,11 @@ void InitializeStepper( void )
   stepperMotors.init();
 
   // Set 1st motor (VERTICAL1) max speed to 100steps/sec
-  stepperMotors.setMaximumSpeed( SM_VERTICAL_1, stepperMotors.calcMaxSpd( 250 ) );
+  stepperMotors.setMaximumSpeed( SM_VERTICAL_1, stepperMotors.calcMaxSpd( 200 ) );
   // Set 2nd motor (VERTICAL2) max speed to 100steps/sec
-  stepperMotors.setMaximumSpeed( SM_VERTICAL_2, stepperMotors.calcMaxSpd( 250 ) );
+  stepperMotors.setMaximumSpeed( SM_VERTICAL_2, stepperMotors.calcMaxSpd( 200 ) );
   // Set 3rd motor (ROTATE) max speed to 100steps/sec
-  stepperMotors.setMaximumSpeed( SM_ROTATE, stepperMotors.calcMaxSpd( 50 ) );
+  stepperMotors.setMaximumSpeed( SM_ROTATE, stepperMotors.calcMaxSpd( 30 ) );
   
   stepperMotors.resetHome( SM_VERTICAL_1 );
   stepperMotors.resetHome( SM_VERTICAL_2 );
@@ -231,10 +231,10 @@ bool ManualControlStepper( void )
     
     if( IsRotateExecButtonPressed ){
       if( IsRotateRightButtonPressed ){
-        stepperMotors.run( SM_ROTATE, stepperMotors.calcSpd( 200 ), true ); // Clockwise
+        stepperMotors.run( SM_ROTATE, stepperMotors.calcSpd( 30 ), true ); // Clockwise
         isActed = true;
       }else if( IsRotateLeftButtonPressed ){
-        stepperMotors.run( SM_ROTATE, stepperMotors.calcSpd( 200 ), false ); // Counter-Clockwise
+        stepperMotors.run( SM_ROTATE, stepperMotors.calcSpd( 30 ), false ); // Counter-Clockwise
         isActed = true;
       }else{
         stepperMotors.stop( SM_ROTATE );
@@ -597,3 +597,4 @@ void CheckButtons( void )
   //   debugSerial.printf("RSLowButton\n");
   // }
 }
+
