@@ -118,6 +118,8 @@ int main(){
       for( int8_t i = 0; i < 10; i++ ){
         data[i] = jetsonPort.get_payload_by_1byte( i + 1 );
       }
+
+      debugSerial.printf("Command: %d\n", command);
       
       switch( command ){
       case COM_SEND:
@@ -142,18 +144,22 @@ int main(){
       case COM_NOTLOADED:
         display.cls();
         display.printf("Firmware:  IndiaLoading VGGNet16\n");
+        debugSerial.printf("Loading VGGNet16\n");
         break;
       case COM_LOADED:
         display.cls();
         display.printf("Firmware:  IndiaReady           \n");
+        debugSerial.printf("Ready\n");
         break;
       case COM_RECEIVED:
         display.cls();
         display.printf("Firmware:  IndiaReceived:%2d / %-2d\n", data[0], data[1]);
+        debugSerial.printf("Received:%2d / %-2d\n", data[0], data[1]);
         break;
       case COM_STARTEDPREDICTING:
         display.cls();
         display.printf("Firmware:  IndiaPredicting...   \n");
+        debugSerial.printf("Predicting\n");
         break;
       default:
         break;
